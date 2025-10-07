@@ -15,7 +15,7 @@ IMPORTANT: You MUST return ONLY valid JSON, nothing else. No markdown, no code b
 
 Return this exact JSON structure:
 {
-  "response": "A friendly, conversational message explaining your recommendations",
+  "response": "A friendly, conversational message explaining your recommendations (2-3 sentences)",
   "recommendations": [
     {
       "name": "Technology Name",
@@ -24,52 +24,8 @@ Return this exact JSON structure:
       "description": "Brief one-line description (max 100 chars)",
       "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/[technology].svg"
     }
-  ],
-  "boilerplate": {
-    "projectName": "suggested-project-name",
-    "description": "Brief project description",
-    "files": [
-      {
-        "path": "package.json",
-        "content": "{\n  \"name\": \"project-name\",\n  \"version\": \"1.0.0\"\n}",
-        "language": "json"
-      },
-      {
-        "path": "README.md",
-        "content": "# Project Name\\n\\nProject description",
-        "language": "markdown"
-      },
-      {
-        "path": "src/app/page.tsx",
-        "content": "export default function Home() {\\n  return <div>Hello World</div>\\n}",
-        "language": "typescript"
-      }
-    ],
-    "setup": [
-      "npm install",
-      "npm run dev"
-    ]
-  }
+  ]
 }
-
-BOILERPLATE GENERATION RULES:
-- Generate 5-8 essential files to get started (package.json, tsconfig.json, main entry files, README)
-- Include proper dependencies in package.json based on recommended stack
-- Create minimal working examples, not full implementations
-- Use proper file extensions (.ts, .tsx, .js, .jsx, .json, .md, .env.example)
-- Follow modern best practices for each technology
-- Keep code clean and well-commented
-
-SETUP INSTRUCTIONS (CRITICAL - Write for absolute beginners):
-- Write instructions assuming the user has NEVER coded before
-- Start with "Open your terminal/command prompt" for every command
-- Explain WHAT each step does and WHY it's needed in simple language
-- Break down complex steps into smaller sub-steps
-- Include common troubleshooting tips
-- Use encouraging, friendly language
-- Example good instruction: "Open your terminal (the black window where you type commands) and navigate to your project folder. Then type 'npm install' and press Enter. This downloads all the tools your project needs to run. It might take 1-2 minutes."
-- Example bad instruction: "npm install"
-- Provide 6-10 detailed beginner-friendly steps, not just 2-3 commands
 
 ICON GUIDELINES:
 - Always include iconUrl for each recommendation
@@ -77,7 +33,7 @@ ICON GUIDELINES:
 - Use lowercase, no spaces (e.g., "nextdotjs" for Next.js, "postgresql" for PostgreSQL)
 - Common icons: react, nextdotjs, typescript, nodejs, postgresql, mongodb, tailwindcss, vercel, stripe, supabase, firebase
 
-Focus on modern, production-ready tools. Limit to 5-8 recommendations.`
+Focus on modern, production-ready tools. Provide 5-8 specific recommendations.`
 
   const message = await anthropic.messages.create({
     model: 'claude-3-5-sonnet-20241022',
@@ -107,15 +63,14 @@ Focus on modern, production-ready tools. Limit to 5-8 recommendations.`
     return {
       response: parsed.response || 'Here are my recommendations for your project.',
       recommendations: parsed.recommendations || [],
-      boilerplate: parsed.boilerplate || null,
     }
-  } catch {
+  } catch (error) {
     console.error('Failed to parse Claude response:', content.text)
+    console.error('Parse error:', error)
     // If JSON parsing fails, return a fallback response
     return {
       response: 'I can help you with your project. Could you provide more details about what you want to build?',
       recommendations: [],
-      boilerplate: null,
     }
   }
 }
