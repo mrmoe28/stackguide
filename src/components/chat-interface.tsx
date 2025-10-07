@@ -84,7 +84,6 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
         },
         body: JSON.stringify({
           message: input,
-          userId,
         }),
       })
 

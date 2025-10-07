@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getStackRecommendations } from '@/lib/anthropic'
-import { db, chats } from '@/lib/db'
 
 const chatSchema = z.object({
   message: z.string().min(1, 'Message is required'),
-  userId: z.string().uuid('Invalid user ID'),
-  projectId: z.string().uuid('Invalid project ID').optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -16,19 +13,6 @@ export async function POST(request: NextRequest) {
 
     // Get AI recommendations
     const result = await getStackRecommendations(validatedData.message)
-
-    // Save chat to database
-    if (validatedData.projectId) {
-      await db.insert(chats).values({
-        userId: validatedData.userId,
-        projectId: validatedData.projectId,
-        message: validatedData.message,
-        response: result.response,
-        recommendations: result.recommendations.map(
-          (r: { name: string }) => r.name
-        ),
-      })
-    }
 
     return NextResponse.json({
       response: result.response,

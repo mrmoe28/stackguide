@@ -1,15 +1,6 @@
-import { redirect } from 'next/navigation'
-import { auth } from '@/lib/auth'
 import ChatInterface from '@/components/chat-interface'
-import SignOutButton from '@/components/sign-out-button'
 
-export default async function DashboardPage() {
-  const session = await auth()
-
-  if (!session || !session.user) {
-    redirect('/auth/signin')
-  }
-
+export default function DashboardPage() {
   return (
     <div className="h-screen flex flex-col">
       <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
@@ -19,14 +10,13 @@ export default async function DashboardPage() {
           </h1>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              {session.user?.email || 'User'}
+              ekosolarize@gmail.com
             </span>
-            <SignOutButton />
           </div>
         </div>
       </header>
       <main className="flex-1 overflow-hidden">
-        <ChatInterface userId={session.user?.id || ''} />
+        <ChatInterface userId="demo-user" />
       </main>
     </div>
   )
