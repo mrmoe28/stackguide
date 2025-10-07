@@ -19,12 +19,19 @@ Return this exact JSON structure:
   "recommendations": [
     {
       "name": "Technology Name",
-      "category": "Framework|Database|Authentication|Hosting|UI Library",
+      "category": "Framework|Database|Authentication|Hosting|UI Library|Tool",
       "url": "https://official-site.com",
-      "description": "Brief one-line description (max 100 chars)"
+      "description": "Brief one-line description (max 100 chars)",
+      "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/[technology].svg"
     }
   ]
 }
+
+IMPORTANT ICON GUIDELINES:
+- Always include iconUrl for each recommendation
+- Use https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/[name].svg for most technologies
+- Use lowercase, no spaces for icon names (e.g., "nextdotjs" for Next.js, "postgresql" for PostgreSQL)
+- Common icons: react, nextdotjs, typescript, nodejs, postgresql, mongodb, tailwindcss, vercel, stripe, supabase, firebase
 
 Focus on modern, production-ready tools. Limit to 5-8 most relevant recommendations.`
 
