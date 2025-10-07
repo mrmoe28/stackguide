@@ -38,7 +38,7 @@
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.64.0",
     "tailwind-merge": "^2.6.0",
-    "ws": "^8.18.0",
+    "ws": "^8.18.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -49,7 +49,7 @@
     "@types/node": "^22.18.8",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.1",
-    "@types/ws": "^8.5.13",
+    "@types/ws": "^8.18.1",
     "drizzle-kit": "^0.30.6",
     "eslint": "^9.37.0",
     "eslint-config-next": "^15.5.4",

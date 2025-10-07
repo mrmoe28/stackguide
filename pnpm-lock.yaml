@@ -72,7 +72,7 @@ importers:
         specifier: ^2.6.0
         version: 2.6.0
       ws:
-        specifier: ^8.18.0
+        specifier: ^8.18.3
         version: 8.18.3
       zod:
         specifier: ^3.25.76
@@ -100,7 +100,7 @@ importers:
         specifier: ^19.2.1
         version: 19.2.1(@types/react@19.2.2)
       '@types/ws':
-        specifier: ^8.5.13
+        specifier: ^8.18.1
         version: 8.18.1
       drizzle-kit:
         specifier: ^0.30.6
