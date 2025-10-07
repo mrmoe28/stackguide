@@ -8,7 +8,6 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import FileAccessConsentDialog from '@/components/file-access-consent-dialog'
 import ProgressChecklist, { ChecklistItem } from '@/components/progress-checklist'
-import { directoryOpen } from 'browser-fs-access'
 
 interface CodeFile {
   path: string
@@ -83,7 +82,7 @@ export default function CodeViewer({ files, projectName, setup }: CodeViewerProp
       }
 
       // Request directory access
-      const dirHandle = await (window as any).showDirectoryPicker({
+      const dirHandle = await (window as unknown as { showDirectoryPicker: (options: { mode: string }) => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker({
         mode: 'readwrite',
       })
 
@@ -148,12 +147,16 @@ export default function CodeViewer({ files, projectName, setup }: CodeViewerProp
       }
 
       alert(`✅ Project "${projectName}" created successfully!`)
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving files:', error)
-      if (error.name === 'AbortError') {
-        alert('Folder selection was cancelled.')
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          alert('Folder selection was cancelled.')
+        } else {
+          alert(`Error creating project: ${error.message}`)
+        }
       } else {
-        alert(`Error creating project: ${error.message}`)
+        alert('An unexpected error occurred while creating the project.')
       }
     } finally {
       setIsSaving(false)
@@ -299,7 +302,7 @@ export default function CodeViewer({ files, projectName, setup }: CodeViewerProp
             </ol>
             <div className="mt-6 p-4 bg-white dark:bg-gray-900 rounded-lg border border-blue-200 dark:border-blue-800">
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                💡 <strong>Need help?</strong> If you get stuck, don't worry! Most issues can be solved by making sure you're in the right folder and that Node.js is installed on your computer.
+                💡 <strong>Need help?</strong> If you get stuck, don&apos;t worry! Most issues can be solved by making sure you&apos;re in the right folder and that Node.js is installed on your computer.
               </p>
             </div>
           </div>
