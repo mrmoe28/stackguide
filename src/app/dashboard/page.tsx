@@ -1,11 +1,12 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import ChatInterface from '@/components/chat-interface'
+import SignOutButton from '@/components/sign-out-button'
 
 export default async function DashboardPage() {
   const session = await auth()
 
-  if (!session) {
+  if (!session || !session.user) {
     redirect('/auth/signin')
   }
 
@@ -18,19 +19,14 @@ export default async function DashboardPage() {
           </h1>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              {session.user.email}
+              {session.user?.email || 'User'}
             </span>
-            <button
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              onClick={() => {}}
-            >
-              Sign Out
-            </button>
+            <SignOutButton />
           </div>
         </div>
       </header>
       <main className="flex-1 overflow-hidden">
-        <ChatInterface userId={session.user.id} />
+        <ChatInterface userId={session.user?.id || ''} />
       </main>
     </div>
   )
