@@ -1,32 +1,34 @@
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 
-if (!process.env.R2_ENDPOINT) {
-  throw new Error('R2_ENDPOINT environment variable is required')
-}
-if (!process.env.R2_ACCESS_KEY_ID) {
-  throw new Error('R2_ACCESS_KEY_ID environment variable is required')
-}
-if (!process.env.R2_SECRET_ACCESS_KEY) {
-  throw new Error('R2_SECRET_ACCESS_KEY environment variable is required')
-}
-if (!process.env.R2_BUCKET) {
-  throw new Error('R2_BUCKET environment variable is required')
-}
+// R2 is optional - only initialize if credentials are provided
+const isR2Configured = !!(
+  process.env.R2_ENDPOINT &&
+  process.env.R2_ACCESS_KEY_ID &&
+  process.env.R2_SECRET_ACCESS_KEY &&
+  process.env.R2_BUCKET
+)
 
-const r2Client = new S3Client({
-  region: 'auto',
-  endpoint: process.env.R2_ENDPOINT,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-  },
-})
+const r2Client = isR2Configured
+  ? new S3Client({
+      region: 'auto',
+      endpoint: process.env.R2_ENDPOINT!,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+      },
+    })
+  : null
 
 export async function uploadToR2(
   key: string,
   content: string,
   contentType: string = 'text/plain'
 ): Promise<void> {
+  if (!isR2Configured || !r2Client) {
+    console.log('R2 storage not configured, skipping upload')
+    return
+  }
+
   const command = new PutObjectCommand({
     Bucket: process.env.R2_BUCKET,
     Key: key,
@@ -38,6 +40,10 @@ export async function uploadToR2(
 }
 
 export async function getFromR2(key: string): Promise<string> {
+  if (!isR2Configured || !r2Client) {
+    throw new Error('R2 storage is not configured')
+  }
+
   const command = new GetObjectCommand({
     Bucket: process.env.R2_BUCKET,
     Key: key,
@@ -47,4 +53,4 @@ export async function getFromR2(key: string): Promise<string> {
   return await response.Body!.transformToString()
 }
 
-export { r2Client }
+export { r2Client, isR2Configured }
