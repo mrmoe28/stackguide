@@ -155,36 +155,26 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
                   </div>
                   {/* Show Claude Code prompt if available */}
                   {message.role === 'assistant' && message.claudePrompt && (
-                    <div className="w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                          <span className="text-2xl">🚀</span>
-                          Claude Code Prompt
+                    <div className="w-full">
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="text-xl">🚀</span>
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          Claude Code Prompt - Copy and paste into Claude Code
                         </h4>
-                        <Button
+                      </div>
+                      <div className="relative bg-gray-900 dark:bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
+                        <button
                           onClick={() => handleCopyPrompt(message.claudePrompt!, message.id)}
-                          size="sm"
-                          variant="default"
-                          className="gap-2"
+                          className="absolute top-3 right-3 p-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                          title="Copy prompt"
                         >
                           {copiedPromptId === message.id ? (
-                            <>
-                              <Check className="h-4 w-4" />
-                              Copied!
-                            </>
+                            <Check className="h-4 w-4" />
                           ) : (
-                            <>
-                              <Copy className="h-4 w-4" />
-                              Copy Prompt
-                            </>
+                            <Copy className="h-4 w-4" />
                           )}
-                        </Button>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        Copy this prompt and paste it into Claude Code to build your project:
-                      </p>
-                      <div className="bg-white dark:bg-gray-900 rounded-md p-4 border border-gray-200 dark:border-gray-700">
-                        <pre className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap font-mono">
+                        </button>
+                        <pre className="p-4 pr-14 text-sm text-gray-100 whitespace-pre-wrap font-mono overflow-x-auto">
                           {message.claudePrompt}
                         </pre>
                       </div>
