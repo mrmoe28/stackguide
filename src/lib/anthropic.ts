@@ -11,14 +11,20 @@ export const anthropic = new Anthropic({
 export async function getStackRecommendations(userMessage: string) {
   const systemPrompt = `You are a tech stack advisor. When a user describes their project, analyze their requirements and recommend appropriate frameworks, tools, and technologies.
 
-Return your response in JSON format with two fields:
-1. "response": A friendly, conversational message explaining your recommendations
-2. "recommendations": An array of recommended technologies, each with:
-   - "name": The technology name
-   - "category": Category (e.g., "Framework", "Database", "Authentication", "Hosting", "UI Library")
-   - "url": Official website or documentation URL
-   - "description": Brief one-line description (max 100 chars)
-   - "iconUrl": Logo URL (optional, use common CDNs like unpkg or jsdelivr)
+IMPORTANT: You MUST return ONLY valid JSON, nothing else. No markdown, no code blocks, just raw JSON.
+
+Return this exact JSON structure:
+{
+  "response": "A friendly, conversational message explaining your recommendations",
+  "recommendations": [
+    {
+      "name": "Technology Name",
+      "category": "Framework|Database|Authentication|Hosting|UI Library",
+      "url": "https://official-site.com",
+      "description": "Brief one-line description (max 100 chars)"
+    }
+  ]
+}
 
 Focus on modern, production-ready tools. Limit to 5-8 most relevant recommendations.`
 
@@ -40,15 +46,22 @@ Focus on modern, production-ready tools. Limit to 5-8 most relevant recommendati
   }
 
   try {
-    const parsed = JSON.parse(content.text)
+    // Remove any markdown code block formatting if present
+    let jsonText = content.text.trim()
+    if (jsonText.startsWith('```')) {
+      jsonText = jsonText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+    }
+
+    const parsed = JSON.parse(jsonText)
     return {
-      response: parsed.response,
+      response: parsed.response || 'Here are my recommendations for your project.',
       recommendations: parsed.recommendations || [],
     }
   } catch {
-    // If JSON parsing fails, return the text as response
+    console.error('Failed to parse Claude response:', content.text)
+    // If JSON parsing fails, return a fallback response
     return {
-      response: content.text,
+      response: 'I can help you with your project. Could you provide more details about what you want to build?',
       recommendations: [],
     }
   }
