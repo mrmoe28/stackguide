@@ -156,16 +156,16 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
                   {/* Show Claude Code prompt if available */}
                   {message.role === 'assistant' && message.claudePrompt && (
                     <div className="w-full">
-                      <div className="mb-2 flex items-center gap-2">
-                        <span className="text-xl">🚀</span>
-                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                          Claude Code Prompt - Copy and paste into Claude Code
+                      <div className="mb-3 flex items-center gap-2">
+                        <span className="text-2xl">🚀</span>
+                        <h4 className="text-base font-bold text-gray-800 dark:text-gray-200">
+                          Claude Code Prompt
                         </h4>
                       </div>
-                      <div className="relative bg-gray-900 dark:bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
+                      <div className="relative bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-lg overflow-hidden border-2 border-blue-200 dark:border-slate-700 shadow-sm">
                         <button
                           onClick={() => handleCopyPrompt(message.claudePrompt!, message.id)}
-                          className="absolute top-3 right-3 p-2 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                          className="absolute top-3 right-3 p-2 rounded-md bg-white dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-all shadow-sm border border-gray-200 dark:border-slate-600"
                           title="Copy prompt"
                         >
                           {copiedPromptId === message.id ? (
@@ -174,10 +174,13 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
                             <Copy className="h-4 w-4" />
                           )}
                         </button>
-                        <pre className="p-4 pr-14 text-sm text-gray-100 whitespace-pre-wrap font-mono overflow-x-auto">
+                        <pre className="p-4 pr-14 text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap font-mono overflow-x-auto leading-relaxed">
                           {message.claudePrompt}
                         </pre>
                       </div>
+                      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 italic">
+                        💡 Copy this prompt and paste it into Claude Code to build your project
+                      </p>
                     </div>
                   )}
                   {/* Show boilerplate code if available */}
