@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, Loader2 } from 'lucide-react'
+import { Send, Loader2, Copy, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -28,6 +28,7 @@ interface Message {
   content: string
   recommendations?: Recommendation[]
   boilerplate?: Boilerplate | null
+  claudePrompt?: string | null
 }
 
 interface Recommendation {
@@ -54,6 +55,7 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
+  const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -61,6 +63,12 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [messages])
+
+  const handleCopyPrompt = async (prompt: string, messageId: string) => {
+    await navigator.clipboard.writeText(prompt)
+    setCopiedPromptId(messageId)
+    setTimeout(() => setCopiedPromptId(null), 2000)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -99,6 +107,7 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
         content: data.response,
         recommendations: data.recommendations,
         boilerplate: data.boilerplate || null,
+        claudePrompt: data.claudePrompt || null,
       }
 
       setMessages((prev) => [...prev, assistantMessage])
@@ -144,6 +153,43 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
                       </p>
                     </div>
                   </div>
+                  {/* Show Claude Code prompt if available */}
+                  {message.role === 'assistant' && message.claudePrompt && (
+                    <div className="w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                          <span className="text-2xl">🚀</span>
+                          Claude Code Prompt
+                        </h4>
+                        <Button
+                          onClick={() => handleCopyPrompt(message.claudePrompt!, message.id)}
+                          size="sm"
+                          variant="default"
+                          className="gap-2"
+                        >
+                          {copiedPromptId === message.id ? (
+                            <>
+                              <Check className="h-4 w-4" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-4 w-4" />
+                              Copy Prompt
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Copy this prompt and paste it into Claude Code to build your project:
+                      </p>
+                      <div className="bg-white dark:bg-gray-900 rounded-md p-4 border border-gray-200 dark:border-gray-700">
+                        <pre className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap font-mono">
+                          {message.claudePrompt}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
                   {/* Show boilerplate code if available */}
                   {message.role === 'assistant' && message.boilerplate && (
                     <div className="w-full">

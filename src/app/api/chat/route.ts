@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       response: result.response,
       recommendations: result.recommendations,
+      claudePrompt: result.claudePrompt,
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
