@@ -7,12 +7,27 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import StackCard from '@/components/stack-card'
+import CodeViewer from '@/components/code-viewer'
+
+interface CodeFile {
+  path: string
+  content: string
+  language: string
+}
+
+interface Boilerplate {
+  projectName: string
+  description: string
+  files: CodeFile[]
+  setup: string[]
+}
 
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
   recommendations?: Recommendation[]
+  boilerplate?: Boilerplate | null
 }
 
 interface Recommendation {
@@ -84,6 +99,7 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
         role: 'assistant',
         content: data.response,
         recommendations: data.recommendations,
+        boilerplate: data.boilerplate || null,
       }
 
       setMessages((prev) => [...prev, assistantMessage])
@@ -111,23 +127,34 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
           <ScrollArea className="h-full p-4">
             <div ref={scrollRef} className="space-y-4">
               {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
+                <div key={message.id} className="space-y-4">
                   <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                      message.role === 'user'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                    className={`flex ${
+                      message.role === 'user' ? 'justify-end' : 'justify-start'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">
-                      {message.content}
-                    </p>
+                    <div
+                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                        message.role === 'user'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">
+                        {message.content}
+                      </p>
+                    </div>
                   </div>
+                  {/* Show boilerplate code if available */}
+                  {message.role === 'assistant' && message.boilerplate && (
+                    <div className="w-full">
+                      <CodeViewer
+                        files={message.boilerplate.files}
+                        projectName={message.boilerplate.projectName}
+                        setup={message.boilerplate.setup}
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
               {loading && (

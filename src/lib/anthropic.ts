@@ -24,16 +24,50 @@ Return this exact JSON structure:
       "description": "Brief one-line description (max 100 chars)",
       "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/[technology].svg"
     }
-  ]
+  ],
+  "boilerplate": {
+    "projectName": "suggested-project-name",
+    "description": "Brief project description",
+    "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"project-name\",\n  \"version\": \"1.0.0\"\n}",
+        "language": "json"
+      },
+      {
+        "path": "README.md",
+        "content": "# Project Name\\n\\nProject description",
+        "language": "markdown"
+      },
+      {
+        "path": "src/app/page.tsx",
+        "content": "export default function Home() {\\n  return <div>Hello World</div>\\n}",
+        "language": "typescript"
+      }
+    ],
+    "setup": [
+      "npm install",
+      "npm run dev"
+    ]
+  }
 }
 
-IMPORTANT ICON GUIDELINES:
+BOILERPLATE GENERATION RULES:
+- Generate 5-8 essential files to get started (package.json, tsconfig.json, main entry files, README)
+- Include proper dependencies in package.json based on recommended stack
+- Create minimal working examples, not full implementations
+- Include setup instructions (installation and run commands)
+- Use proper file extensions (.ts, .tsx, .js, .jsx, .json, .md, .env.example)
+- Follow modern best practices for each technology
+- Keep code clean and well-commented
+
+ICON GUIDELINES:
 - Always include iconUrl for each recommendation
-- Use https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/[name].svg for most technologies
-- Use lowercase, no spaces for icon names (e.g., "nextdotjs" for Next.js, "postgresql" for PostgreSQL)
+- Use https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/[name].svg
+- Use lowercase, no spaces (e.g., "nextdotjs" for Next.js, "postgresql" for PostgreSQL)
 - Common icons: react, nextdotjs, typescript, nodejs, postgresql, mongodb, tailwindcss, vercel, stripe, supabase, firebase
 
-Focus on modern, production-ready tools. Limit to 5-8 most relevant recommendations.`
+Focus on modern, production-ready tools. Limit to 5-8 recommendations.`
 
   const message = await anthropic.messages.create({
     model: 'claude-3-5-sonnet-20241022',
@@ -63,6 +97,7 @@ Focus on modern, production-ready tools. Limit to 5-8 most relevant recommendati
     return {
       response: parsed.response || 'Here are my recommendations for your project.',
       recommendations: parsed.recommendations || [],
+      boilerplate: parsed.boilerplate || null,
     }
   } catch {
     console.error('Failed to parse Claude response:', content.text)
@@ -70,6 +105,7 @@ Focus on modern, production-ready tools. Limit to 5-8 most relevant recommendati
     return {
       response: 'I can help you with your project. Could you provide more details about what you want to build?',
       recommendations: [],
+      boilerplate: null,
     }
   }
 }
