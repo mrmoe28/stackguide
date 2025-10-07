@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { scrapeGitHubReadme, scrapePopularRepos } from '@/lib/github-scraper'
 import { db, knowledge } from '@/lib/db'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 
 const scrapeSchema = z.object({
   repoUrl: z.string().url(),
@@ -156,16 +156,18 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category')
     const language = searchParams.get('language')
 
-    let query = db.select().from(knowledge)
-
+    // Build query with conditional filters
+    const conditions = []
     if (category) {
-      query = query.where(eq(knowledge.category, category))
+      conditions.push(eq(knowledge.category, category))
     }
     if (language) {
-      query = query.where(eq(knowledge.language, language))
+      conditions.push(eq(knowledge.language, language))
     }
 
-    const entries = await query.limit(50)
+    const entries = conditions.length > 0
+      ? await db.select().from(knowledge).where(and(...conditions)).limit(50)
+      : await db.select().from(knowledge).limit(50)
 
     return NextResponse.json({
       success: true,

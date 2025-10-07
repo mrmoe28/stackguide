@@ -1,9 +1,10 @@
+import NextAuth from 'next-auth'
+import type { User, Session } from 'next-auth'
+import type { JWT } from 'next-auth/jwt'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
 import { db, users } from '@/lib/db'
 import { eq } from 'drizzle-orm'
-
-import NextAuth from 'next-auth'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
@@ -56,13 +57,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({
-      token,
-      user,
-    }: {
-      token: Record<string, unknown>
-      user: Record<string, unknown>
-    }) {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.id = user.id
         token.email = user.email
@@ -70,18 +65,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return token
     },
-    async session({
-      session,
-      token,
-    }: {
-      session: Record<string, unknown>
-      token: Record<string, unknown>
-    }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (token && session.user) {
-        const userSession = session.user as Record<string, unknown>
-        userSession.id = token.id as string
-        userSession.email = token.email as string
-        userSession.name = token.name as string
+        session.user.id = token.id as string
+        session.user.email = token.email as string
+        session.user.name = token.name as string | null
       }
       return session
     },

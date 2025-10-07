@@ -119,11 +119,11 @@ ${readmeContent.slice(0, 4000)}`,
   } catch {
     // Fallback if JSON parsing fails
     return {
-      title: repoMetadata.name,
-      summary: repoMetadata.description || 'No description available',
-      tags: repoMetadata.topics || [],
+      title: String(repoMetadata.name || 'Unknown'),
+      summary: String(repoMetadata.description || 'No description available'),
+      tags: Array.isArray(repoMetadata.topics) ? repoMetadata.topics as string[] : [],
       category: 'Tool',
-      language: repoMetadata.language || 'Unknown',
+      language: String(repoMetadata.language || 'Unknown'),
       features: [],
       rawContent: readmeContent,
     }
