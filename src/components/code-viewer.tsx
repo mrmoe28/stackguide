@@ -259,7 +259,7 @@ export default function CodeViewer({ files, projectName, setup }: CodeViewerProp
         </Button>
         <div className="rounded overflow-hidden max-h-[400px] overflow-y-auto">
           <SyntaxHighlighter
-            language={files[selectedFile].language}
+            language={String(files[selectedFile].language || 'text')}
             style={vscDarkPlus}
             customStyle={{
               margin: 0,
@@ -267,7 +267,7 @@ export default function CodeViewer({ files, projectName, setup }: CodeViewerProp
               fontSize: '0.875rem',
             }}
           >
-            {files[selectedFile].content}
+            {String(files[selectedFile].content || '')}
           </SyntaxHighlighter>
         </div>
       </div>
