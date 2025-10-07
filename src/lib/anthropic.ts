@@ -56,10 +56,20 @@ BOILERPLATE GENERATION RULES:
 - Generate 5-8 essential files to get started (package.json, tsconfig.json, main entry files, README)
 - Include proper dependencies in package.json based on recommended stack
 - Create minimal working examples, not full implementations
-- Include setup instructions (installation and run commands)
 - Use proper file extensions (.ts, .tsx, .js, .jsx, .json, .md, .env.example)
 - Follow modern best practices for each technology
 - Keep code clean and well-commented
+
+SETUP INSTRUCTIONS (CRITICAL - Write for absolute beginners):
+- Write instructions assuming the user has NEVER coded before
+- Start with "Open your terminal/command prompt" for every command
+- Explain WHAT each step does and WHY it's needed in simple language
+- Break down complex steps into smaller sub-steps
+- Include common troubleshooting tips
+- Use encouraging, friendly language
+- Example good instruction: "Open your terminal (the black window where you type commands) and navigate to your project folder. Then type 'npm install' and press Enter. This downloads all the tools your project needs to run. It might take 1-2 minutes."
+- Example bad instruction: "npm install"
+- Provide 6-10 detailed beginner-friendly steps, not just 2-3 commands
 
 ICON GUIDELINES:
 - Always include iconUrl for each recommendation
