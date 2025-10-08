@@ -28,7 +28,7 @@ export default function StackCard({
   }
 
   return (
-    <Card className="p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-lg">
+    <Card className="p-4 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-lg">
       <div className="flex items-start gap-3">
         {recommendation.iconUrl && (
           <div className="relative">
