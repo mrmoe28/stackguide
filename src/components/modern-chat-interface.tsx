@@ -26,6 +26,13 @@ interface Recommendation {
   iconUrl?: string
 }
 
+interface ChatData {
+  id: string
+  message: string
+  response: string
+  recommendations?: Recommendation[]
+}
+
 export default function ModernChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -41,6 +48,7 @@ export default function ModernChatInterface() {
   const [selectedStack, setSelectedStack] = useState<string[]>([])
   const [customPrompt, setCustomPrompt] = useState<string | null>(null)
   const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null)
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -171,11 +179,76 @@ export default function ModernChatInterface() {
     setRecommendations([])
     setSelectedStack([])
     setCustomPrompt(null)
+    setActiveProjectId(null)
   }
 
-  const handleSelectChat = (chatId: string) => {
-    // TODO: Load chat from history
-    console.log('Loading chat:', chatId)
+  const handleSelectChat = async (projectId: string) => {
+    if (loading) return
+
+    setLoading(true)
+    setActiveProjectId(projectId)
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/chats`)
+
+      if (!response.ok) {
+        throw new Error('Failed to load project')
+      }
+
+      const data = await response.json()
+
+      // Convert chats to Message format
+      const loadedMessages: Message[] = []
+
+      // Add welcome message
+      loadedMessages.push({
+        id: 'welcome',
+        role: 'assistant',
+        content: "👋 Hey there! I'm your AI tech stack advisor. Tell me about your project and I'll recommend the perfect tools and frameworks tailored to your needs.",
+      })
+
+      // Add all chat messages
+      data.chats.forEach((chat: ChatData) => {
+        // Add user message
+        loadedMessages.push({
+          id: `user-${chat.id}`,
+          role: 'user',
+          content: chat.message,
+        })
+
+        // Add assistant response
+        const assistantMsg: Message = {
+          id: `assistant-${chat.id}`,
+          role: 'assistant',
+          content: chat.response,
+        }
+
+        // If this chat has recommendations, add them
+        if (chat.recommendations && Array.isArray(chat.recommendations)) {
+          assistantMsg.recommendations = chat.recommendations
+          // Set the latest recommendations in state
+          setRecommendations(chat.recommendations)
+        }
+
+        loadedMessages.push(assistantMsg)
+      })
+
+      setMessages(loadedMessages)
+      setSelectedStack([])
+      setCustomPrompt(null)
+    } catch (error) {
+      console.error('Error loading project:', error)
+      // Show error message
+      setMessages([
+        {
+          id: 'error',
+          role: 'assistant',
+          content: 'Sorry, I couldn\'t load that project. Please try again.',
+        },
+      ])
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -191,6 +264,7 @@ export default function ModernChatInterface() {
       <ChatHistorySidebar
         onNewChat={handleNewChat}
         onSelectChat={handleSelectChat}
+        activeChat={activeProjectId || undefined}
       />
 
       {/* Main Chat Area */}

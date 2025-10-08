@@ -82,8 +82,8 @@ export default function ChatHistorySidebar({
   }
 
   return (
-    <div className="w-64 border-r border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 flex flex-col">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+    <div className="w-64 border-r border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 flex flex-col h-full">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
         <Button
           onClick={onNewChat}
           className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30"
@@ -93,7 +93,7 @@ export default function ChatHistorySidebar({
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 px-3 py-4">
+      <ScrollArea className="flex-1 overflow-auto px-3 py-4">
         <div className="space-y-2">
           <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-2">
             <Sparkles className="h-3 w-3" />
@@ -160,7 +160,7 @@ export default function ChatHistorySidebar({
         </div>
       </ScrollArea>
 
-      <div className="p-3 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-t from-gray-100 to-transparent dark:from-gray-900 dark:to-transparent">
+      <div className="p-3 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-t from-gray-100 to-transparent dark:from-gray-900 dark:to-transparent flex-shrink-0">
         <div className="text-xs text-center text-gray-500 dark:text-gray-400">
           {loading ? '...' : `${projects.length} saved ${projects.length === 1 ? 'project' : 'projects'}`}
         </div>
