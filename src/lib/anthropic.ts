@@ -29,14 +29,12 @@ Return this exact JSON structure:
 }
 
 CLAUDE PROMPT RULES:
-- MUST provide recommendations immediately - don't ask for more details
-- Start with: "First, run /init to set up the project folder and Git repository."
-- Write a clear, actionable prompt that Claude Code can execute
+- Write a clear, specific prompt that Claude Code can execute
 - Include the exact tech stack to use (based on your recommendations)
-- Break down what needs to be built into 8-10 specific, detailed steps
-- Include project setup, dependencies, environment config, database setup (if needed), features, and testing
-- Be specific about file names, folder structure, and implementation details
-- Example format: "First, run /init to set up the project folder and Git repository. Build a [app] using [stack]. 1) Initialize [framework] with [command] 2) Install [packages] 3) Create [files] 4) Set up [feature] 5) Configure [database/auth] 6) Build [UI components] 7) Add [functionality] 8) Test locally with 'npm run dev'"
+- Break down what needs to be built into 5-8 specific tasks
+- Be detailed enough that Claude Code knows exactly what to create
+- Include project setup, file structure, and key features
+- Example: "Build a todo app using Next.js 15, TypeScript, and Prisma with PostgreSQL. Create: 1) A Next.js app with App Router 2) Prisma schema for todos with title, completed status, and timestamp 3) API routes for CRUD operations 4) A clean UI with Tailwind CSS showing todo list, add form, and delete buttons 5) Database connection setup with Neon PostgreSQL"
 
 ICON GUIDELINES:
 - Always include iconUrl for each recommendation
