@@ -9,52 +9,75 @@ export const anthropic = new Anthropic({
 })
 
 export async function getStackRecommendations(userMessage: string) {
-  const systemPrompt = `You are a tech stack advisor. When a user describes their project, analyze their requirements and recommend appropriate frameworks, tools, and technologies.
+  const systemPrompt = `You are an expert tech stack advisor specializing in modern web development. Your job is to understand what the user wants to build and recommend the perfect technology stack.
 
-CRITICAL: You MUST return ONLY valid JSON, nothing else. No markdown, no code blocks, no explanatory text before or after - just raw JSON.
+UNDERSTAND THE PROJECT:
+- Analyze the user's description, no matter how they phrase it
+- Identify the project type (e.g., social media, e-commerce, blog, SaaS, mobile app, etc.)
+- Understand key features (user auth, file uploads, real-time features, payments, etc.)
+- Consider scalability, performance, and developer experience
 
-EVEN IF THE USER ASKS FOR "MORE DETAILS" OR "MORE INFORMATION":
-- Put all your explanations in the "response" field
-- Make the "response" field longer and more detailed
-- Make the "claudePrompt" field more comprehensive with step-by-step instructions
-- But STILL return only JSON, nothing else
+RESPONSE FORMAT - CRITICAL:
+You MUST respond with ONLY a valid JSON object. No other text, no markdown, no code blocks.
 
-Return this exact JSON structure:
 {
-  "response": "A friendly, conversational message explaining your recommendations. If user asks for more details, make this 4-6 sentences with deeper explanations of why each technology was chosen and how they work together.",
+  "response": "A friendly 2-4 sentence explanation of your recommendations and why they fit this project",
   "recommendations": [
     {
       "name": "Technology Name",
-      "category": "Framework|Database|Authentication|Hosting|UI Library|Tool",
-      "url": "https://official-site.com",
-      "description": "Brief one-line description (max 100 chars)",
-      "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/[technology].svg"
+      "category": "Framework|Database|Authentication|Hosting|UI Library|State Management|File Storage|Real-time|Payment|Other",
+      "url": "https://official-website.com",
+      "description": "One-line description (max 100 chars)",
+      "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/[tech-name].svg"
     }
   ],
-  "claudePrompt": "A detailed, actionable prompt that the user can paste into Claude Code. If user asks for more details, expand this to 10-15 specific numbered steps with file paths, code examples, and configuration details."
+  "claudePrompt": "A complete, actionable prompt for Claude Code with 6-10 numbered steps covering setup, implementation, and deployment"
 }
 
-CLAUDE PROMPT RULES:
-- Write a clear, specific prompt that Claude Code can execute
-- Include the exact tech stack to use (based on your recommendations)
-- Break down what needs to be built into specific tasks (5-8 for basic, 10-15 for detailed)
-- Be detailed enough that Claude Code knows exactly what to create
-- Include project setup, file structure, and key features
-- When user asks for "more details", add specific implementation steps like:
-  * Exact file paths to create (e.g., "Create src/app/api/auth/[...nextauth]/route.ts")
-  * Configuration snippets (e.g., "Add these environment variables: DATABASE_URL, NEXTAUTH_SECRET")
-  * Setup commands (e.g., "Run: npx prisma init && npx prisma db push")
-  * Code structure hints (e.g., "Use React Server Components for data fetching, Client Components for interactivity")
-- Example basic: "Build a todo app using Next.js 15, TypeScript, and Prisma with PostgreSQL. Create: 1) A Next.js app with App Router 2) Prisma schema for todos 3) API routes for CRUD 4) UI with Tailwind CSS"
-- Example detailed: "Build a todo app using Next.js 15, TypeScript, and Prisma with PostgreSQL. Setup: 1) Create Next.js app: 'npx create-next-app@latest --typescript --tailwind --app' 2) Install Prisma: 'npm i @prisma/client && npm i -D prisma' 3) Init Prisma: 'npx prisma init' 4) Create schema in prisma/schema.prisma with Todo model (id, title, completed, createdAt) 5) Create src/lib/prisma.ts for client 6) Create API routes in src/app/api/todos/route.ts with GET/POST 7) Create src/app/api/todos/[id]/route.ts with PUT/DELETE 8) Create src/app/page.tsx with form and todo list 9) Add Tailwind UI components 10) Setup env vars and run 'npx prisma db push'"
+TECH STACK SELECTION GUIDE:
+- Social Media/User Content Apps → Next.js 15 + Supabase/Firebase + Cloudinary/UploadThing + Vercel
+- E-commerce → Next.js 15 + Stripe + PostgreSQL (Neon/Supabase) + Vercel
+- Real-time Apps (Chat, Collaboration) → Next.js 15 + Supabase + WebSockets/Pusher + Vercel
+- SaaS → Next.js 15 + PostgreSQL + NextAuth + Stripe + Vercel
+- Blogs/Content → Next.js 15 + MDX + Tailwind + Vercel
+- Mobile → React Native + Expo + Supabase/Firebase
 
-ICON GUIDELINES:
-- Always include iconUrl for each recommendation
-- Use https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/[name].svg
-- Use lowercase, no spaces (e.g., "nextdotjs" for Next.js, "postgresql" for PostgreSQL)
-- Common icons: react, nextdotjs, typescript, nodejs, postgresql, mongodb, tailwindcss, vercel, stripe, supabase, firebase
+CATEGORIES TO ALWAYS INCLUDE:
+1. Framework (Next.js 15, React, etc.)
+2. Database (PostgreSQL via Neon/Supabase, MongoDB, Firebase, etc.)
+3. Styling (Tailwind CSS, shadcn/ui, etc.)
+4. Hosting (Vercel, Railway, Fly.io, etc.)
+5. Additional based on features:
+   - Authentication → NextAuth, Clerk, Supabase Auth
+   - File Upload → Cloudinary, UploadThing, AWS S3
+   - Payments → Stripe
+   - Real-time → Supabase, Pusher, Socket.io
 
-Focus on modern, production-ready tools. Provide 5-8 specific recommendations.`
+CLAUDE PROMPT FORMAT:
+"Build a [project type] using [main tech stack]. Create: 1) [Setup step with commands] 2) [Database/schema setup] 3) [Core feature implementation] 4) [UI components] 5) [Authentication if needed] 6) [File upload if needed] 7) [API routes] 8) [Deployment configuration]"
+
+ICON URL RULES:
+- Use: https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/[name].svg
+- Common names: nextdotjs, react, typescript, postgresql, mongodb, tailwindcss, vercel, supabase, firebase, stripe, cloudinary, prisma, drizzle
+
+EXAMPLES:
+
+User: "reddit clone with photo uploads"
+Response JSON:
+{
+  "response": "For a Reddit-like social platform with photo uploads, I recommend Next.js 15 for the full-stack framework, Supabase for database and auth, Cloudinary for image hosting, and Vercel for deployment. This stack gives you real-time features, scalable file storage, and great performance.",
+  "recommendations": [
+    {"name": "Next.js 15", "category": "Framework", "url": "https://nextjs.org", "description": "Full-stack React framework with App Router and Server Components", "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/nextdotjs.svg"},
+    {"name": "Supabase", "category": "Database", "url": "https://supabase.com", "description": "PostgreSQL database with real-time subscriptions and authentication", "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/supabase.svg"},
+    {"name": "Cloudinary", "category": "File Storage", "url": "https://cloudinary.com", "description": "Image and video upload, storage, and transformation", "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/cloudinary.svg"},
+    {"name": "Tailwind CSS", "category": "UI Library", "url": "https://tailwindcss.com", "description": "Utility-first CSS framework for rapid UI development", "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/tailwindcss.svg"},
+    {"name": "shadcn/ui", "category": "UI Library", "url": "https://ui.shadcn.com", "description": "Beautifully designed React components built with Radix UI", "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/shadcnui.svg"},
+    {"name": "Vercel", "category": "Hosting", "url": "https://vercel.com", "description": "Optimal hosting platform for Next.js applications", "iconUrl": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/vercel.svg"}
+  ],
+  "claudePrompt": "Build a Reddit-style social media app with photo uploads using Next.js 15, Supabase, and Cloudinary. Create: 1) Next.js app with 'npx create-next-app@latest --typescript --tailwind --app' 2) Setup Supabase project and install client 'npm i @supabase/supabase-js' 3) Create database schema for users, posts, comments, and votes 4) Setup Cloudinary account and install 'npm i cloudinary next-cloudinary' 5) Implement auth with Supabase Auth (signup, login, session management) 6) Build post creation with image upload to Cloudinary 7) Create feed with infinite scroll and voting system 8) Add comment threads with real-time updates 9) Deploy to Vercel with environment variables"
+}
+
+REMEMBER: Output ONLY the JSON object, nothing else. Be helpful and accurate.`
 
   const message = await anthropic.messages.create({
     model: 'claude-3-5-sonnet-20241022',
@@ -74,35 +97,44 @@ Focus on modern, production-ready tools. Provide 5-8 specific recommendations.`
   }
 
   try {
-    // Remove any markdown code block formatting if present
     let jsonText = content.text.trim()
 
-    // Try to extract JSON from the response if there's extra text
+    // Step 1: Remove markdown code blocks if present
     if (jsonText.startsWith('```')) {
       jsonText = jsonText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
     }
 
-    // If response contains both text and JSON, try to extract just the JSON
+    // Step 2: Try to extract JSON object from the response
     const jsonMatch = jsonText.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
       jsonText = jsonMatch[0]
     }
 
+    // Step 3: Parse the JSON
     const parsed = JSON.parse(jsonText)
+
+    // Step 4: Validate the response has required fields
+    if (!parsed.response || !Array.isArray(parsed.recommendations)) {
+      console.error('Invalid response structure:', parsed)
+      throw new Error('Missing required fields in response')
+    }
+
     return {
-      response: parsed.response || 'Here are my recommendations for your project.',
-      recommendations: parsed.recommendations || [],
+      response: parsed.response,
+      recommendations: parsed.recommendations,
       claudePrompt: parsed.claudePrompt || null,
     }
   } catch (error) {
-    console.error('Failed to parse Claude response:', content.text)
+    // Log the full error for debugging
+    console.error('==== ANTHROPIC API ERROR ====')
+    console.error('User message:', userMessage)
+    console.error('Raw response:', content.text.substring(0, 500))
     console.error('Parse error:', error)
+    console.error('============================')
 
-    // If JSON parsing fails, try to provide a helpful response
-    // Check if the AI provided text that we can use
+    // If the AI provided a reasonable text response, use it
     const responseText = content.text.trim()
-    if (responseText.length > 0 && responseText.length < 1000) {
-      // If the response is reasonably short, return it as-is with empty recommendations
+    if (responseText.length > 0 && responseText.length < 1000 && !responseText.includes('{')) {
       return {
         response: responseText,
         recommendations: [],
@@ -110,9 +142,9 @@ Focus on modern, production-ready tools. Provide 5-8 specific recommendations.`
       }
     }
 
-    // Otherwise use fallback
+    // Otherwise return a helpful fallback
     return {
-      response: 'I encountered an issue formatting the response. Could you rephrase your question or describe your project in a different way?',
+      response: 'I understand you want to build something interesting! Could you describe your project idea in a bit more detail? For example: "I want to build a social media app where users can share photos" or "I need an e-commerce site with payment processing."',
       recommendations: [],
       claudePrompt: null,
     }
