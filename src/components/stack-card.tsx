@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { ExternalLink, Check, Plus } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -15,35 +14,17 @@ interface Recommendation {
 
 interface StackCardProps {
   recommendation: Recommendation
-  userId: string
+  isSelected: boolean
+  onToggle: (techName: string) => void
 }
 
-export default function StackCard({ recommendation, userId }: StackCardProps) {
-  const [saved, setSaved] = useState(false)
-  const [saving, setSaving] = useState(false)
-
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      const response = await fetch('/api/recommendations/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          recommendation,
-        }),
-      })
-
-      if (response.ok) {
-        setSaved(true)
-      }
-    } catch (error) {
-      console.error('Failed to save recommendation:', error)
-    } finally {
-      setSaving(false)
-    }
+export default function StackCard({
+  recommendation,
+  isSelected,
+  onToggle
+}: StackCardProps) {
+  const handleToggle = () => {
+    onToggle(recommendation.name)
   }
 
   return (
@@ -78,16 +59,15 @@ export default function StackCard({ recommendation, userId }: StackCardProps) {
             {recommendation.description}
           </p>
           <Button
-            onClick={handleSave}
-            disabled={saving || saved}
+            onClick={handleToggle}
             size="sm"
-            variant={saved ? 'secondary' : 'default'}
+            variant={isSelected ? 'secondary' : 'default'}
             className="mt-3 w-full"
           >
-            {saved ? (
+            {isSelected ? (
               <>
                 <Check className="h-4 w-4 mr-2" />
-                Saved
+                Added to Stack
               </>
             ) : (
               <>

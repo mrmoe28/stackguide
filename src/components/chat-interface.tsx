@@ -55,6 +55,8 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
+  const [selectedStack, setSelectedStack] = useState<string[]>([])
+  const [customPrompt, setCustomPrompt] = useState<string | null>(null)
   const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -70,6 +72,39 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
     setTimeout(() => setCopiedPromptId(null), 2000)
   }
 
+  const handleToggleStack = (techName: string) => {
+    setSelectedStack((prev) =>
+      prev.includes(techName)
+        ? prev.filter((name) => name !== techName)
+        : [...prev, techName]
+    )
+  }
+
+  const generateCustomPrompt = (originalPrompt: string, selectedTech: string[]) => {
+    if (selectedTech.length === 0) return originalPrompt
+
+    // Extract the project description from the original prompt
+    const lines = originalPrompt.split('\n')
+    const firstLine = lines[0]
+
+    // Create new prompt with selected technologies
+    const techList = selectedTech.join(', ')
+    const customPrompt = `${firstLine.split('using')[0]}using ${techList}. ${lines.slice(1).join('\n')}`
+
+    return customPrompt
+  }
+
+  useEffect(() => {
+    // Update custom prompt when selected stack changes
+    const lastMessage = messages[messages.length - 1]
+    if (lastMessage?.claudePrompt && selectedStack.length > 0) {
+      const newPrompt = generateCustomPrompt(lastMessage.claudePrompt, selectedStack)
+      setCustomPrompt(newPrompt)
+    } else {
+      setCustomPrompt(null)
+    }
+  }, [selectedStack, messages])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || loading) return
@@ -83,6 +118,8 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
     setMessages((prev) => [...prev, userMessage])
     setInput('')
     setLoading(true)
+    setSelectedStack([]) // Reset selected stack for new query
+    setCustomPrompt(null)
 
     try {
       const response = await fetch('/api/chat', {
@@ -156,15 +193,27 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
                   {/* Show Claude Code prompt if available */}
                   {message.role === 'assistant' && message.claudePrompt && (
                     <div className="w-full">
-                      <div className="mb-3 flex items-center gap-2">
-                        <span className="text-2xl">🚀</span>
-                        <h4 className="text-base font-bold text-gray-800 dark:text-gray-200">
-                          Claude Code Prompt
-                        </h4>
+                      <div className="mb-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">🚀</span>
+                          <h4 className="text-base font-bold text-gray-800 dark:text-gray-200">
+                            Claude Code Prompt
+                            {customPrompt && (
+                              <span className="ml-2 text-xs font-normal text-blue-600 dark:text-blue-400">
+                                (Customized)
+                              </span>
+                            )}
+                          </h4>
+                        </div>
+                        {selectedStack.length > 0 && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {selectedStack.length} selected
+                          </span>
+                        )}
                       </div>
                       <div className="relative bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-lg overflow-hidden border-2 border-blue-200 dark:border-slate-700 shadow-sm">
                         <button
-                          onClick={() => handleCopyPrompt(message.claudePrompt!, message.id)}
+                          onClick={() => handleCopyPrompt(customPrompt || message.claudePrompt!, message.id)}
                           className="absolute top-3 right-3 p-2 rounded-md bg-white dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-all shadow-sm border border-gray-200 dark:border-slate-600"
                           title="Copy prompt"
                         >
@@ -175,11 +224,11 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
                           )}
                         </button>
                         <pre className="p-4 pr-14 text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap font-mono overflow-x-auto leading-relaxed">
-                          {message.claudePrompt}
+                          {customPrompt || message.claudePrompt}
                         </pre>
                       </div>
                       <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 italic">
-                        💡 Copy this prompt and paste it into Claude Code to build your project
+                        💡 {customPrompt ? 'Your customized prompt is ready!' : 'Click "Add to Stack" on technologies you want, or copy this prompt as-is'}
                       </p>
                     </div>
                   )}
@@ -249,7 +298,12 @@ export default function ChatInterface({ userId }: ChatInterfaceProps) {
               </div>
             ) : (
               recommendations.map((rec, index) => (
-                <StackCard key={index} recommendation={rec} userId={userId} />
+                <StackCard
+                  key={index}
+                  recommendation={rec}
+                  isSelected={selectedStack.includes(rec.name)}
+                  onToggle={handleToggleStack}
+                />
               ))
             )}
           </div>
