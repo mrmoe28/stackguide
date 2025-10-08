@@ -29,65 +29,14 @@ Return this exact JSON structure:
 }
 
 CLAUDE PROMPT RULES:
-- ALWAYS start with: "First, run /init to set up the project folder and Git repository."
-- Write a clear, step-by-step prompt that Claude Code can execute autonomously
-- Include the exact tech stack with specific versions when important
-- Break down the implementation into 8-12 detailed, actionable steps
-- Include project initialization, dependencies, configuration, file structure, and features
-- Be explicit about file names, folder structure, and code organization
-- Include environment setup, database configuration, and deployment steps
-- Mention testing and error handling where appropriate
-- End with instructions to test the application locally
-
-PROMPT STRUCTURE TEMPLATE:
-"First, run /init to set up the project folder and Git repository.
-
-Build a [project name] using [tech stack]. Follow these steps:
-
-1. Project Setup:
-   - Initialize [framework] project with [specific commands]
-   - Install dependencies: [list key packages]
-   - Configure [configuration files]
-
-2. Environment Configuration:
-   - Create .env file with [specific variables]
-   - Set up [database/auth/API] connections
-
-3. Database Setup (if applicable):
-   - Create schema for [entities]
-   - Set up migrations with [tool]
-   - Configure connection to [database service]
-
-4-8. Feature Implementation:
-   - Build [specific feature] with [implementation details]
-   - Create [specific files] in [specific folders]
-   - Implement [specific functionality]
-
-9. Testing:
-   - Test [key features]
-   - Verify [integrations work]
-
-10. Final Steps:
-   - Run the dev server
-   - Verify everything works
-   - (Optional) Deploy to [platform]"
-
-Example: "First, run /init to set up the project folder and Git repository.
-
-Build a task management app using Next.js 15, TypeScript, Prisma, and PostgreSQL (Neon). Follow these steps:
-
-1. Initialize Next.js 15 project with App Router and TypeScript
-2. Install dependencies: prisma, @prisma/client, @neondatabase/serverless
-3. Create .env file with DATABASE_URL for Neon PostgreSQL
-4. Set up Prisma schema with Task model (id, title, description, completed, createdAt)
-5. Generate Prisma client and push schema to database
-6. Create API routes in app/api/tasks for CRUD operations (GET, POST, PUT, DELETE)
-7. Build the UI in app/page.tsx with Tailwind CSS: task list, add form, delete buttons, and toggle completion
-8. Add loading states and error handling
-9. Create a TaskCard component for individual tasks
-10. Test all CRUD operations locally
-11. Verify database connection and data persistence
-12. Run 'npm run dev' and test the complete application"
+- MUST provide recommendations immediately - don't ask for more details
+- Start with: "First, run /init to set up the project folder and Git repository."
+- Write a clear, actionable prompt that Claude Code can execute
+- Include the exact tech stack to use (based on your recommendations)
+- Break down what needs to be built into 8-10 specific, detailed steps
+- Include project setup, dependencies, environment config, database setup (if needed), features, and testing
+- Be specific about file names, folder structure, and implementation details
+- Example format: "First, run /init to set up the project folder and Git repository. Build a [app] using [stack]. 1) Initialize [framework] with [command] 2) Install [packages] 3) Create [files] 4) Set up [feature] 5) Configure [database/auth] 6) Build [UI components] 7) Add [functionality] 8) Test locally with 'npm run dev'"
 
 ICON GUIDELINES:
 - Always include iconUrl for each recommendation
