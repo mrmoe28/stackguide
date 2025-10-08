@@ -235,19 +235,22 @@ export default function ModernChatInterface() {
                           </span>
                         )}
                       </div>
-                      <div className="relative bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-xl overflow-hidden border-2 border-purple-200 dark:border-purple-800 shadow-lg">
+                      <div className="relative bg-gradient-to-br from-purple-100 via-pink-50 to-orange-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-xl overflow-hidden border-2 border-purple-300 dark:border-purple-800 shadow-xl shadow-purple-200/50 dark:shadow-none">
+                        {/* Decorative accent line */}
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500"></div>
+
                         <button
                           onClick={() => handleCopyPrompt(customPrompt || message.claudePrompt!, message.id)}
-                          className="absolute top-3 right-3 p-2.5 rounded-lg bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/50 text-gray-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 transition-all shadow-md border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600"
+                          className="absolute top-4 right-3 p-2.5 rounded-lg bg-white/90 dark:bg-gray-800 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 transition-all shadow-md border border-purple-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-600 hover:scale-105"
                           title="Copy prompt"
                         >
                           {copiedPromptId === message.id ? (
-                            <Check className="h-4 w-4 text-green-600" />
+                            <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
                           ) : (
                             <Copy className="h-4 w-4" />
                           )}
                         </button>
-                        <pre className="p-5 pr-16 text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap font-mono overflow-x-auto leading-relaxed">
+                        <pre className="p-5 pr-16 pt-6 text-sm text-purple-900 dark:text-gray-100 whitespace-pre-wrap font-mono overflow-x-auto leading-relaxed selection:bg-purple-300 selection:text-purple-900">
                           {customPrompt || message.claudePrompt}
                         </pre>
                       </div>
