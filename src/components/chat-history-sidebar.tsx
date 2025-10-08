@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, MessageSquare, Clock, Sparkles } from 'lucide-react'
+import { Plus, MessageSquare, Clock, Sparkles, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
@@ -25,7 +25,7 @@ export default function ChatHistorySidebar({
   activeChat
 }: ChatHistorySidebarProps) {
   // Mock chat history - will be replaced with real data
-  const [chats] = useState<ChatSession[]>([
+  const [chats, setChats] = useState<ChatSession[]>([
     {
       id: '1',
       title: 'E-commerce Platform',
@@ -57,6 +57,11 @@ export default function ChatHistorySidebar({
     return date.toLocaleDateString()
   }
 
+  const handleDeleteChat = (e: React.MouseEvent, chatId: string) => {
+    e.stopPropagation() // Prevent triggering the chat selection
+    setChats(prevChats => prevChats.filter(chat => chat.id !== chatId))
+  }
+
   return (
     <div className="w-64 border-r border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 flex flex-col">
       <div className="p-4 border-b border-gray-200 dark:border-gray-800">
@@ -77,18 +82,20 @@ export default function ChatHistorySidebar({
           </div>
 
           {chats.map((chat) => (
-            <button
+            <div
               key={chat.id}
-              onClick={() => onSelectChat(chat.id)}
               className={cn(
-                "w-full text-left p-3 rounded-lg transition-all duration-200",
+                "relative group w-full text-left p-3 rounded-lg transition-all duration-200",
                 "hover:bg-white dark:hover:bg-gray-800 hover:shadow-md",
                 "border border-transparent hover:border-gray-200 dark:hover:border-gray-700",
                 activeChat === chat.id && "bg-white dark:bg-gray-800 shadow-md border-blue-200 dark:border-blue-800"
               )}
             >
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30">
+              <button
+                onClick={() => onSelectChat(chat.id)}
+                className="w-full flex items-start gap-3"
+              >
+                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 flex-shrink-0">
                   <MessageSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -103,8 +110,17 @@ export default function ChatHistorySidebar({
                     {formatDate(chat.createdAt)}
                   </div>
                 </div>
-              </div>
-            </button>
+              </button>
+
+              {/* Delete Button */}
+              <button
+                onClick={(e) => handleDeleteChat(e, chat.id)}
+                className="absolute top-2 right-2 p-1.5 rounded-md bg-white dark:bg-gray-800 opacity-0 group-hover:opacity-100 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-all shadow-sm border border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-800"
+                title="Delete project"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
           ))}
         </div>
       </ScrollArea>
