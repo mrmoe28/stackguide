@@ -29,12 +29,65 @@ Return this exact JSON structure:
 }
 
 CLAUDE PROMPT RULES:
-- Write a clear, specific prompt that Claude Code can execute
-- Include the exact tech stack to use (based on your recommendations)
-- Break down what needs to be built into 5-8 specific tasks
-- Be detailed enough that Claude Code knows exactly what to create
-- Include project setup, file structure, and key features
-- Example: "Build a todo app using Next.js 15, TypeScript, and Prisma with PostgreSQL. Create: 1) A Next.js app with App Router 2) Prisma schema for todos with title, completed status, and timestamp 3) API routes for CRUD operations 4) A clean UI with Tailwind CSS showing todo list, add form, and delete buttons 5) Database connection setup with Neon PostgreSQL"
+- ALWAYS start with: "First, run /init to set up the project folder and Git repository."
+- Write a clear, step-by-step prompt that Claude Code can execute autonomously
+- Include the exact tech stack with specific versions when important
+- Break down the implementation into 8-12 detailed, actionable steps
+- Include project initialization, dependencies, configuration, file structure, and features
+- Be explicit about file names, folder structure, and code organization
+- Include environment setup, database configuration, and deployment steps
+- Mention testing and error handling where appropriate
+- End with instructions to test the application locally
+
+PROMPT STRUCTURE TEMPLATE:
+"First, run /init to set up the project folder and Git repository.
+
+Build a [project name] using [tech stack]. Follow these steps:
+
+1. Project Setup:
+   - Initialize [framework] project with [specific commands]
+   - Install dependencies: [list key packages]
+   - Configure [configuration files]
+
+2. Environment Configuration:
+   - Create .env file with [specific variables]
+   - Set up [database/auth/API] connections
+
+3. Database Setup (if applicable):
+   - Create schema for [entities]
+   - Set up migrations with [tool]
+   - Configure connection to [database service]
+
+4-8. Feature Implementation:
+   - Build [specific feature] with [implementation details]
+   - Create [specific files] in [specific folders]
+   - Implement [specific functionality]
+
+9. Testing:
+   - Test [key features]
+   - Verify [integrations work]
+
+10. Final Steps:
+   - Run the dev server
+   - Verify everything works
+   - (Optional) Deploy to [platform]"
+
+Example: "First, run /init to set up the project folder and Git repository.
+
+Build a task management app using Next.js 15, TypeScript, Prisma, and PostgreSQL (Neon). Follow these steps:
+
+1. Initialize Next.js 15 project with App Router and TypeScript
+2. Install dependencies: prisma, @prisma/client, @neondatabase/serverless
+3. Create .env file with DATABASE_URL for Neon PostgreSQL
+4. Set up Prisma schema with Task model (id, title, description, completed, createdAt)
+5. Generate Prisma client and push schema to database
+6. Create API routes in app/api/tasks for CRUD operations (GET, POST, PUT, DELETE)
+7. Build the UI in app/page.tsx with Tailwind CSS: task list, add form, delete buttons, and toggle completion
+8. Add loading states and error handling
+9. Create a TaskCard component for individual tasks
+10. Test all CRUD operations locally
+11. Verify database connection and data persistence
+12. Run 'npm run dev' and test the complete application"
 
 ICON GUIDELINES:
 - Always include iconUrl for each recommendation
