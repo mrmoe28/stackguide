@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Share2, Download, Link as LinkIcon, Check, FileText, Code } from 'lucide-react'
+import { Share2, Download, Link as LinkIcon, Check, FileText, Code, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,19 +11,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useSession } from 'next-auth/react'
 
 interface ExportShareProps {
-  recommendations: Array<{ name: string; category: string; url: string; description: string }>
+  recommendations: Array<{ name: string; category: string; url: string; description: string; iconUrl?: string }>
   claudePrompt?: string | null
   projectTitle?: string
+  projectDescription?: string
+  projectId?: string
 }
 
 export default function ExportShare({
   recommendations,
   claudePrompt,
-  projectTitle = 'My Tech Stack'
+  projectTitle = 'My Tech Stack',
+  projectDescription,
+  projectId,
 }: ExportShareProps) {
+  const { data: session } = useSession()
   const [copied, setCopied] = useState(false)
+  const [sharing, setSharing] = useState(false)
 
   const generateMarkdown = () => {
     let markdown = `# ${projectTitle}\n\n`
@@ -78,11 +85,41 @@ export default function ExportShare({
   }
 
   const handleCopyLink = async () => {
-    // In production, this would generate a shareable URL
-    const shareUrl = `${window.location.origin}/share/${Date.now()}`
-    await navigator.clipboard.writeText(shareUrl)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      setSharing(true)
+
+      // Call API to create share link
+      const response = await fetch('/api/share', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectTitle,
+          projectDescription,
+          recommendations,
+          claudePrompt,
+          projectId,
+          userId: session?.user?.id,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create share link')
+      }
+
+      const data = await response.json()
+
+      // Copy the real share URL to clipboard
+      await navigator.clipboard.writeText(data.shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (error) {
+      console.error('Error creating share link:', error)
+      alert('Failed to create share link. Please try again.')
+    } finally {
+      setSharing(false)
+    }
   }
 
   const handleCopyMarkdown = async () => {
@@ -100,8 +137,14 @@ export default function ExportShare({
         <Button
           variant="outline"
           className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+          disabled={sharing}
         >
-          {copied ? (
+          {sharing ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Creating link...
+            </>
+          ) : copied ? (
             <>
               <Check className="h-4 w-4 mr-2 text-green-600" />
               Copied!

@@ -119,6 +119,23 @@ export const chats = pgTable('chats', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
+// Shared recommendations table - for public sharing
+export const sharedRecommendations = pgTable('shared_recommendations', {
+  id: text('id').primaryKey(), // Custom short ID for clean URLs
+  projectId: uuid('project_id')
+    .references(() => projects.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .references(() => users.id, { onDelete: 'set null' }),
+  projectTitle: text('project_title').notNull(),
+  projectDescription: text('project_description'),
+  recommendations: jsonb('recommendations').notNull(),
+  claudePrompt: text('claude_prompt'),
+  metadata: jsonb('metadata'),
+  viewCount: integer('view_count').default(0).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  expiresAt: timestamp('expires_at'), // Optional expiration
+})
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   projects: many(projects),
@@ -167,3 +184,6 @@ export type NewKnowledge = typeof knowledge.$inferInsert
 
 export type Chat = typeof chats.$inferSelect
 export type NewChat = typeof chats.$inferInsert
+
+export type SharedRecommendation = typeof sharedRecommendations.$inferSelect
+export type NewSharedRecommendation = typeof sharedRecommendations.$inferInsert
