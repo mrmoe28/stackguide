@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Settings, User, Moon, Sun, LogOut, HelpCircle } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { signOut } from 'next-auth/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,7 +76,10 @@ export default function SettingsMenu({ userEmail, onProfileClick }: SettingsMenu
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem className="text-red-600 dark:text-red-400">
+        <DropdownMenuItem
+          className="text-red-600 dark:text-red-400"
+          onClick={() => signOut({ callbackUrl: '/landing' })}
+        >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log Out</span>
         </DropdownMenuItem>
