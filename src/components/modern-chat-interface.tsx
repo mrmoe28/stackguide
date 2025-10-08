@@ -68,11 +68,12 @@ export default function ModernChatInterface() {
 
     // Match format: "Build X using A, B, C. Create/Setup/Implementation steps..."
     // We want to replace the tech stack (A, B, C) while keeping everything else
-    const usingMatch = originalPrompt.match(/^(.*?)\s+using\s+(.*?)\.\s+(Create|Setup|Build|Implementation|Steps?|1\))/is)
+    // Using [\s\S] instead of . with s flag for ES2018 compatibility
+    const usingMatch = originalPrompt.match(/^([\s\S]*?)\s+using\s+([\s\S]*?)\.\s+(Create|Setup|Build|Implementation|Steps?|1\))/i)
 
     if (!usingMatch) {
       // Fallback: if no standard pattern found, try to find "using" and replace from there
-      const simpleMatch = originalPrompt.match(/^(.*?)\s+using\s+(.*)$/is)
+      const simpleMatch = originalPrompt.match(/^([\s\S]*?)\s+using\s+([\s\S]*)$/i)
       if (simpleMatch) {
         return `${simpleMatch[1].trim()} using ${selectedTech.join(', ')}`
       }
