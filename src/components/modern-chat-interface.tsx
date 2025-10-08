@@ -66,12 +66,28 @@ export default function ModernChatInterface() {
   const generateCustomPrompt = (originalPrompt: string, selectedTech: string[]) => {
     if (selectedTech.length === 0) return originalPrompt
 
-    const lines = originalPrompt.split('\n')
-    const firstLine = lines[0]
-    const techList = selectedTech.join(', ')
-    const customPrompt = `${firstLine.split('using')[0]}using ${techList}. ${lines.slice(1).join('\n')}`
+    // Match format: "Build X using A, B, C. Create/Setup/Implementation steps..."
+    // We want to replace the tech stack (A, B, C) while keeping everything else
+    const usingMatch = originalPrompt.match(/^(.*?)\s+using\s+(.*?)\.\s+(Create|Setup|Build|Implementation|Steps?|1\))/is)
 
-    return customPrompt
+    if (!usingMatch) {
+      // Fallback: if no standard pattern found, try to find "using" and replace from there
+      const simpleMatch = originalPrompt.match(/^(.*?)\s+using\s+(.*)$/is)
+      if (simpleMatch) {
+        return `${simpleMatch[1].trim()} using ${selectedTech.join(', ')}`
+      }
+      // Last resort: prepend the tech stack
+      return `Using ${selectedTech.join(', ')}: ${originalPrompt}`
+    }
+
+    const [, projectDescription, , stepKeyword] = usingMatch
+    const techList = selectedTech.join(', ')
+
+    // Get everything after the tech stack period
+    const afterTech = originalPrompt.substring(originalPrompt.indexOf(stepKeyword))
+
+    // Reconstruct with custom tech stack while preserving all implementation steps
+    return `${projectDescription.trim()} using ${techList}. ${afterTech.trim()}`
   }
 
   useEffect(() => {
