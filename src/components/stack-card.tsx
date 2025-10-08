@@ -44,7 +44,7 @@ export default function StackCard({
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base">
+            <h3 className="font-bold !text-black dark:!text-white text-base">
               {recommendation.name}
             </h3>
             <a
@@ -60,7 +60,7 @@ export default function StackCard({
           <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 inline-block mt-1 bg-blue-50 dark:bg-blue-900/40 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-700">
             {recommendation.category}
           </span>
-          <p className="text-sm text-gray-800 dark:text-gray-200 mt-2.5 line-clamp-3 leading-relaxed">
+          <p className="text-sm !text-black dark:!text-gray-200 mt-2.5 line-clamp-3 leading-relaxed">
             {recommendation.description}
           </p>
           <Button
