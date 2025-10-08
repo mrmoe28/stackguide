@@ -69,6 +69,7 @@ export const projects = pgTable('projects', {
     .notNull(),
   name: text('name').notNull(),
   description: text('description'),
+  lastMessageAt: timestamp('last_message_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
