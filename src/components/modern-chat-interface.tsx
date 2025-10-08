@@ -179,7 +179,14 @@ export default function ModernChatInterface() {
   }
 
   return (
-    <div className="h-full flex bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-950 dark:via-blue-950/20 dark:to-indigo-950/20">
+    <div className="h-full flex bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-blue-950/20 dark:to-indigo-950/20 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 -left-4 w-96 h-96 bg-blue-400/10 dark:bg-blue-500/5 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
+        <div className="absolute top-0 -right-4 w-96 h-96 bg-purple-400/10 dark:bg-purple-500/5 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-indigo-400/10 dark:bg-indigo-500/5 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+      </div>
+
       {/* Chat History Sidebar */}
       <ChatHistorySidebar
         onNewChat={handleNewChat}
@@ -187,7 +194,7 @@ export default function ModernChatInterface() {
       />
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col relative z-10">
         <div className="flex-1 overflow-y-auto">
           <div ref={scrollRef} className="max-w-4xl mx-auto px-4 py-8 space-y-6">
               {messages.map((message) => (
@@ -200,10 +207,10 @@ export default function ModernChatInterface() {
                   >
                     <div
                       className={cn(
-                        "max-w-[85%] rounded-2xl px-6 py-4 shadow-sm",
+                        "max-w-[85%] rounded-2xl px-6 py-4 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl",
                         message.role === 'user'
-                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
-                          : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'
+                          ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-blue-500/30'
+                          : 'bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl text-gray-900 dark:text-white border border-gray-200/50 dark:border-gray-700/50 shadow-gray-200/50 dark:shadow-none'
                       )}
                     >
                       <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
@@ -282,12 +289,12 @@ export default function ModernChatInterface() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Describe your project idea... (e.g., 'I want to build a social media app')"
                 disabled={loading}
-                className="flex-1 h-12 px-4 rounded-xl border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-500 bg-white dark:bg-gray-800"
+                className="flex-1 h-12 px-4 rounded-xl border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-500 bg-white dark:bg-gray-800 transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 hover:border-blue-400 dark:hover:border-blue-600"
               />
               <Button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="h-12 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30"
+                className="h-12 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -301,11 +308,16 @@ export default function ModernChatInterface() {
       </div>
 
       {/* Enhanced Recommendations Panel */}
-      <div className="w-full md:w-[420px] flex flex-col bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 flex-shrink-0">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+      <div className="w-full md:w-[420px] flex flex-col bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 relative">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 flex-shrink-0 relative overflow-hidden">
+          {/* Subtle glow effect */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-50"></div>
+
+          <div className="flex items-center justify-between mb-2 relative z-10">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
               Tech Stack
             </h2>
             {recommendations.length > 0 && (
@@ -315,7 +327,7 @@ export default function ModernChatInterface() {
               />
             )}
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-gray-600 dark:text-gray-400 relative z-10">
             {recommendations.length > 0
               ? `${recommendations.length} recommendations`
               : 'Describe your project to get started'}
@@ -325,15 +337,25 @@ export default function ModernChatInterface() {
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-4">
             {recommendations.length === 0 ? (
-              <div className="text-center py-12 px-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 mx-auto mb-4 flex items-center justify-center">
-                  <Sparkles className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              <div className="text-center py-16 px-4 animate-in fade-in duration-700">
+                {/* Animated Icon with Glow */}
+                <div className="relative inline-block mb-6">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 mx-auto flex items-center justify-center shadow-2xl shadow-blue-500/50 animate-pulse">
+                    <Sparkles className="h-10 w-10 text-white animate-bounce" />
+                  </div>
+                  {/* Decorative rings */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400/30 to-purple-400/30 blur-xl animate-pulse"></div>
+                  <div className="absolute -inset-2 rounded-full border-2 border-blue-400/20 animate-ping"></div>
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  No recommendations yet
+
+                <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                  Ready to Build Something Amazing?
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  Describe your project idea
                 </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">
-                  Tell me about your project to get personalized tech stack recommendations
+                <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs mx-auto">
+                  Get instant, AI-powered tech stack recommendations tailored to your needs
                 </p>
               </div>
             ) : (
