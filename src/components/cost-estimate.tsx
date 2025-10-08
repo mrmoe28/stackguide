@@ -27,15 +27,21 @@ export default function CostEstimate({ recommendations }: CostEstimateProps) {
       'Next.js': { category: 'Framework', service: 'Next.js', monthlyCost: 0, tier: 'Free' },
       'Vercel': { category: 'Hosting', service: 'Vercel Pro', monthlyCost: 20, tier: 'Pro' },
       'PostgreSQL': { category: 'Database', service: 'Neon', monthlyCost: 19, tier: 'Scale' },
+      'Neon': { category: 'Database', service: 'Neon', monthlyCost: 19, tier: 'Scale' },
+      'Neon DB': { category: 'Database', service: 'Neon', monthlyCost: 19, tier: 'Scale' },
+      'NeonDB': { category: 'Database', service: 'Neon', monthlyCost: 19, tier: 'Scale' },
       'Stripe': { category: 'Payments', service: 'Stripe', monthlyCost: 0, tier: 'Pay as you go' },
       'MongoDB': { category: 'Database', service: 'MongoDB Atlas', monthlyCost: 25, tier: 'M10' },
       'Firebase': { category: 'Backend', service: 'Firebase Blaze', monthlyCost: 25, tier: 'Blaze' },
       'Supabase': { category: 'Backend', service: 'Supabase Pro', monthlyCost: 25, tier: 'Pro' },
       'Prisma': { category: 'ORM', service: 'Prisma', monthlyCost: 0, tier: 'Free' },
+      'Drizzle': { category: 'ORM', service: 'Drizzle ORM', monthlyCost: 0, tier: 'Free' },
       'TypeScript': { category: 'Language', service: 'TypeScript', monthlyCost: 0, tier: 'Free' },
       'Tailwind CSS': { category: 'Styling', service: 'Tailwind CSS', monthlyCost: 0, tier: 'Free' },
       'React': { category: 'Framework', service: 'React', monthlyCost: 0, tier: 'Free' },
-      'Node.js': { category: 'Runtime', service: 'Node.js', monthlyCost: 0, tier: 'Free' }
+      'Node.js': { category: 'Runtime', service: 'Node.js', monthlyCost: 0, tier: 'Free' },
+      'NextAuth': { category: 'Authentication', service: 'NextAuth.js', monthlyCost: 0, tier: 'Free' },
+      'Clerk': { category: 'Authentication', service: 'Clerk', monthlyCost: 25, tier: 'Pro' }
     }
 
     return costs[name] || null
