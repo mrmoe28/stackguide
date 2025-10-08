@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { Plus, MessageSquare, Clock, Sparkles, X, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -21,68 +21,74 @@ interface ChatHistorySidebarProps {
   activeChat?: string
 }
 
-export default function ChatHistorySidebar({
-  onNewChat,
-  onSelectChat,
-  activeChat
-}: ChatHistorySidebarProps) {
-  const [projects, setProjects] = useState<ProjectData[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export interface ChatHistorySidebarRef {
+  refreshProjects: () => void
+}
 
-  useEffect(() => {
-    fetchProjects()
-  }, [])
+const ChatHistorySidebar = forwardRef<ChatHistorySidebarRef, ChatHistorySidebarProps>(
+  function ChatHistorySidebar({ onNewChat, onSelectChat, activeChat }, ref) {
+    const [projects, setProjects] = useState<ProjectData[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
-  const fetchProjects = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await fetch('/api/projects')
+    const fetchProjects = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await fetch('/api/projects')
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch projects')
+        if (!response.ok) {
+          throw new Error('Failed to fetch projects')
+        }
+
+        const data = await response.json()
+        setProjects(data.projects || [])
+      } catch (err) {
+        console.error('Error fetching projects:', err)
+        setError('Failed to load projects')
+      } finally {
+        setLoading(false)
       }
-
-      const data = await response.json()
-      setProjects(data.projects || [])
-    } catch (err) {
-      console.error('Error fetching projects:', err)
-      setError('Failed to load projects')
-    } finally {
-      setLoading(false)
     }
-  }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffDays = Math.floor(diffMs / 86400000)
+    useEffect(() => {
+      fetchProjects()
+    }, [])
 
-    if (diffDays === 0) return 'Today'
-    if (diffDays === 1) return 'Yesterday'
-    if (diffDays < 7) return `${diffDays} days ago`
-    return date.toLocaleDateString()
-  }
+    // Expose fetchProjects to parent component
+    useImperativeHandle(ref, () => ({
+      refreshProjects: fetchProjects,
+    }))
 
-  const handleDeleteProject = async (e: React.MouseEvent, projectId: string) => {
-    e.stopPropagation()
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString)
+      const now = new Date()
+      const diffMs = now.getTime() - date.getTime()
+      const diffDays = Math.floor(diffMs / 86400000)
 
-    // Optimistically remove from UI
-    setProjects(prevProjects => prevProjects.filter(p => p.id !== projectId))
+      if (diffDays === 0) return 'Today'
+      if (diffDays === 1) return 'Yesterday'
+      if (diffDays < 7) return `${diffDays} days ago`
+      return date.toLocaleDateString()
+    }
 
-    // TODO: Call delete API endpoint
-    // For now, just update local state
-  }
+    const handleDeleteProject = async (e: React.MouseEvent, projectId: string) => {
+      e.stopPropagation()
 
-  const truncateText = (text: string | null, maxLength: number) => {
-    if (!text) return ''
-    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text
-  }
+      // Optimistically remove from UI
+      setProjects(prevProjects => prevProjects.filter(p => p.id !== projectId))
 
-  return (
-    <div className="w-64 border-r border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 flex flex-col h-full">
+      // TODO: Call delete API endpoint
+      // For now, just update local state
+    }
+
+    const truncateText = (text: string | null, maxLength: number) => {
+      if (!text) return ''
+      return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text
+    }
+
+    return (
+      <div className="w-64 border-r border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 flex flex-col h-full">
       <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
         <Button
           onClick={onNewChat}
@@ -167,4 +173,8 @@ export default function ChatHistorySidebar({
       </div>
     </div>
   )
-}
+})
+
+ChatHistorySidebar.displayName = 'ChatHistorySidebar'
+
+export default ChatHistorySidebar

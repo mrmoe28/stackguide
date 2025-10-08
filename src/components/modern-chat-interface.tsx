@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import StackCard from '@/components/stack-card'
 import CostEstimate from '@/components/cost-estimate'
 import ExportShare from '@/components/export-share'
-import ChatHistorySidebar from '@/components/chat-history-sidebar'
+import ChatHistorySidebar, { ChatHistorySidebarRef } from '@/components/chat-history-sidebar'
 import { cn } from '@/lib/utils'
 
 interface Message {
@@ -50,6 +50,7 @@ export default function ModernChatInterface() {
   const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null)
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const sidebarRef = useRef<ChatHistorySidebarRef>(null)
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -133,6 +134,7 @@ export default function ModernChatInterface() {
         },
         body: JSON.stringify({
           message: input,
+          projectId: activeProjectId,
         }),
       })
 
@@ -141,6 +143,11 @@ export default function ModernChatInterface() {
       }
 
       const data = await response.json()
+
+      // Set the project ID from response (new project or existing)
+      if (data.projectId) {
+        setActiveProjectId(data.projectId)
+      }
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -154,6 +161,9 @@ export default function ModernChatInterface() {
       if (data.recommendations) {
         setRecommendations(data.recommendations)
       }
+
+      // Refresh the project list in the sidebar
+      sidebarRef.current?.refreshProjects()
     } catch (error) {
       console.error('Chat error:', error)
       const errorMessage: Message = {
@@ -262,6 +272,7 @@ export default function ModernChatInterface() {
 
       {/* Chat History Sidebar */}
       <ChatHistorySidebar
+        ref={sidebarRef}
         onNewChat={handleNewChat}
         onSelectChat={handleSelectChat}
         activeChat={activeProjectId || undefined}
