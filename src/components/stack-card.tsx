@@ -28,7 +28,7 @@ export default function StackCard({
   }
 
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
+    <Card className="p-4 hover:shadow-md transition-shadow bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
       <div className="flex items-start gap-3">
         {recommendation.iconUrl && (
           // eslint-disable-next-line @next/next/no-img-element
