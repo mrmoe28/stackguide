@@ -1,67 +1,82 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { hash } from 'bcryptjs'
-import { db, users } from '@/lib/db'
+import { db } from '@/lib/db'
+import { users } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
+// Validation schema for signup
 const signupSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
+  name: z.string().min(1, 'Name is required').max(100),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const validatedData = signupSchema.parse(body)
+    // Validate input
+    const validationResult = signupSchema.safeParse(body)
+    
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation failed',
+          details: validationResult.error.flatten().fieldErrors,
+        },
+        { status: 400 }
+      )
+    }
+
+    const { email, password, name } = validationResult.data
 
     // Check if user already exists
     const [existingUser] = await db
       .select()
       .from(users)
-      .where(eq(users.email, validatedData.email))
+      .where(eq(users.email, email))
       .limit(1)
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User already exists with this email' },
-        { status: 400 }
+        { error: 'User with this email already exists' },
+        { status: 409 }
       )
     }
 
-    // Hash password
-    const passwordHash = await hash(validatedData.password, 12)
+    // Hash password with bcrypt (cost factor of 12 for 2025 security standards)
+    const passwordHash = await hash(password, 12)
 
-    // Create user
+    // Create user in database
     const [newUser] = await db
       .insert(users)
       .values({
-        name: validatedData.name,
-        email: validatedData.email,
+        email,
         passwordHash,
+        name,
       })
-      .returning()
+      .returning({
+        id: users.id,
+        email: users.email,
+        name: users.name,
+        createdAt: users.createdAt,
+      })
 
     return NextResponse.json(
       {
         success: true,
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          name: newUser.name,
-        },
+        message: 'Account created successfully',
+        user: newUser,
       },
       { status: 201 }
     )
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: error.errors[0].message },
-        { status: 400 }
-      )
-    }
-
     console.error('Signup error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },

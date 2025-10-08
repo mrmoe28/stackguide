@@ -1,14 +1,30 @@
 import NextAuth from 'next-auth'
-import type { User, Session } from 'next-auth'
-import type { JWT } from 'next-auth/jwt'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import type { Session } from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
+import { DrizzleAdapter } from '@auth/drizzle-adapter'
 import { compare } from 'bcryptjs'
-import { db, users } from '@/lib/db'
+import { db } from '@/lib/db'
+import { users, accounts, sessions, verificationTokens } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
+
+// Validation schema for login
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+})
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: DrizzleAdapter(db, {
+    usersTable: users,
+    accountsTable: accounts,
+    sessionsTable: sessions,
+    verificationTokensTable: verificationTokens,
+  }),
   session: {
-    strategy: 'jwt' as const,
+    strategy: 'database',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
   pages: {
     signIn: '/auth/signin',
@@ -16,106 +32,61 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: '/auth/error',
   },
   providers: [
-    CredentialsProvider({
-      name: 'credentials',
+    Credentials({
+      name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        email: { label: 'Email', type: 'email', placeholder: 'you@example.com' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        try {
+          // Validate input with Zod
+          const validatedCredentials = loginSchema.parse(credentials)
+
+          // Find user by email
+          const [user] = await db
+            .select()
+            .from(users)
+            .where(eq(users.email, validatedCredentials.email))
+            .limit(1)
+
+          // User not found or no password hash
+          if (!user || !user.passwordHash) {
+            return null
+          }
+
+          // Verify password with bcrypt
+          const isValidPassword = await compare(
+            validatedCredentials.password,
+            user.passwordHash
+          )
+
+          if (!isValidPassword) {
+            return null
+          }
+
+          // Return user object (password excluded)
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+          }
+        } catch (error) {
+          console.error('Authorization error:', error)
           return null
-        }
-
-        const userList = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, credentials.email as string))
-          .limit(1)
-
-        const user = userList[0]
-
-        if (!user) {
-          return null
-        }
-
-        const isPasswordValid = await compare(
-          credentials.password as string,
-          user.passwordHash
-        )
-
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name || null,
         }
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user?: User }) {
-      if (user) {
-        token.id = user.id
-        token.email = user.email
-        token.name = user.name
-      }
-      return token
-    },
-    async session({ session, token }: { session: Session; token: JWT }) {
-      if (token && session.user) {
-        session.user.id = token.id as string
-        session.user.email = token.email as string
-        session.user.name = token.name as string | null
+    async session({ session, user }: { session: Session; user?: { id: string } }) {
+      // Add user ID to session for easy access
+      if (session.user && user) {
+        session.user.id = user.id
       }
       return session
     },
   },
+  debug: process.env.NODE_ENV === 'development',
 })
-
-export const authOptions = {
-  providers: [
-    CredentialsProvider({
-      name: 'credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
-
-        const userList = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, credentials.email as string))
-          .limit(1)
-
-        const user = userList[0]
-
-        if (!user) {
-          return null
-        }
-
-        const isPasswordValid = await compare(
-          credentials.password as string,
-          user.passwordHash
-        )
-
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name || null,
-        }
-      },
-    }),
-  ],
-}
