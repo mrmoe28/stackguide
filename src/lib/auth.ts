@@ -1,10 +1,8 @@
 import NextAuth from 'next-auth'
-import type { Session } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
-import { DrizzleAdapter } from '@auth/drizzle-adapter'
 import { compare } from 'bcryptjs'
 import { db } from '@/lib/db'
-import { users, accounts, sessions, verificationTokens } from '@/lib/db/schema'
+import { users } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
@@ -15,16 +13,9 @@ const loginSchema = z.object({
 })
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: DrizzleAdapter(db, {
-    usersTable: users,
-    accountsTable: accounts,
-    sessionsTable: sessions,
-    verificationTokensTable: verificationTokens,
-  }),
   session: {
-    strategy: 'database',
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
   },
   pages: {
     signIn: '/auth/signin',
@@ -80,10 +71,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ session, user }: { session: Session; user?: { id: string } }) {
-      // Add user ID to session for easy access
-      if (session.user && user) {
-        session.user.id = user.id
+    async jwt({ token, user }) {
+      // Add user ID to JWT token on sign in
+      if (user) {
+        token.id = user.id
+        token.email = user.email
+        token.name = user.name
+      }
+      return token
+    },
+    async session({ session, token }) {
+      // Add user ID from JWT to session
+      if (session.user && token) {
+        session.user.id = token.id as string
+        session.user.email = token.email as string
+        session.user.name = token.name as string | null
       }
       return session
     },

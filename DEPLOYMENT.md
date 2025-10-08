@@ -1,6 +1,21 @@
-# Deployment Guide for StackGuideR
+# StackGuideR Deployment Guide
 
-This guide will walk you through deploying StackGuideR to Vercel with Neon PostgreSQL.
+## Production URLs
+
+The application is deployed on Vercel with the following production URLs:
+
+- **Primary**: https://stackguide-ekoapps.vercel.app
+- **Alternative**: https://stackguide-inky.vercel.app
+- **Git Branch**: https://stackguide-git-main-ekoapps.vercel.app
+
+## Deployment Status
+
+✅ **Current Status**: Successfully deployed and running
+- Build Time: ~1 minute
+- Deployment Region: iad1 (US East)
+- Status: Ready
+
+---
 
 ## Prerequisites
 
@@ -258,6 +273,68 @@ Neon automatically backs up your database. To manually backup:
 - **Anthropic**: Pay per API request
 - **R2**: Pay per storage and requests (optional)
 
+## Critical: Vercel Deployment Protection
+
+**Current Status**: The app is successfully deployed but protected by Vercel's Deployment Protection (SSO Authentication). This means only team members can access it after logging into Vercel.
+
+### To Make the App Publicly Accessible:
+
+#### Option 1: Via Vercel Dashboard (Recommended)
+1. Go to: https://vercel.com/ekoapps/stackguide/settings/deployment-protection
+2. Under "Vercel Authentication", click "Edit"
+3. Select one of:
+   - **Disabled**: Turns off all protection (not recommended for production)
+   - **Standard Protection**: Only protects Preview deployments, Production is public
+   - **Spending Protection**: Public access with spending limits
+4. Click "Save"
+
+#### Option 2: Via Vercel CLI
+```bash
+vercel project rm-protection --name stackguide
+```
+
+**Recommended Setting**: Use "Standard Protection" to keep preview deployments secure while making production publicly accessible.
+
+---
+
+## Recent Fix (2025-10-08)
+
+### Issue 1: NEXTAUTH_URL Misconfiguration
+Application was showing "404: DEPLOYMENT_NOT_FOUND" error despite successful builds.
+
+### Root Cause
+The `NEXTAUTH_URL` environment variable was set to a placeholder value (`https://your-vercel-domain.vercel.app`) instead of the actual production URL. This caused NextAuth to fail authentication redirects, resulting in 404 errors.
+
+### Issue 2: Deployment Protection Blocking Access
+After fixing NEXTAUTH_URL, the app showed a 401 "Authentication Required" page with Vercel SSO login. This is because Vercel Deployment Protection is enabled on the project.
+
+### Solution
+1. Removed incorrect `NEXTAUTH_URL` from all environments:
+   ```bash
+   vercel env rm NEXTAUTH_URL production
+   ```
+
+2. Added correct production URL for all environments:
+   ```bash
+   echo "https://stackguide-ekoapps.vercel.app" | vercel env add NEXTAUTH_URL production
+   echo "https://stackguide-ekoapps.vercel.app" | vercel env add NEXTAUTH_URL preview
+   ```
+
+3. Redeployed to production:
+   ```bash
+   vercel --prod --yes
+   ```
+
+4. Verified all production aliases are working correctly
+
+### Prevention
+- **CRITICAL**: Always update `NEXTAUTH_URL` to match the actual production domain
+- For preview deployments, use the preview URL or let NextAuth detect it automatically
+- Document all environment variable changes in this file
+- Test authentication flow after any URL changes
+
+---
+
 ## Support
 
 For issues:
@@ -265,6 +342,7 @@ For issues:
 - Review `/README.md` for usage instructions
 - Open GitHub issue with detailed error logs
 - Check Vercel deployment logs
+- View deployment: https://vercel.com/ekoapps/stackguide
 
 ---
 
